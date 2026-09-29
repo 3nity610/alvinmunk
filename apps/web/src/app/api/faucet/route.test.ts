@@ -1,4 +1,5 @@
 // @vitest-environment node
+// @vitest-environment node
 /**
  * Branch-coverage tests for POST /api/faucet (closes #170).
  *
