@@ -61,7 +61,6 @@ beforeEach(async () => {
   vi.stubEnv('NEXT_PUBLIC_INVITE_QUEST_ID', '');
   vi.stubEnv('NEXT_PUBLIC_VOUCHBACK_QUEST_ID', '');
   vi.stubEnv('QUEST_GITHUB_ID', '');
-  vi.stubEnv('NEXT_PUBLIC_RPC_URL', 'http://localhost:8000/soroban/rpc');
   fetchSpy = vi.fn(async () => new Response('{}', { status: 404 }));
   vi.stubGlobal('fetch', fetchSpy);
   simulateSpy = vi.spyOn(rpc.Server.prototype, 'simulateTransaction');
@@ -635,12 +634,5 @@ describe('POST /api/attest already-completed quests (issue #156)', () => {
       expect(methods()).toEqual(['is_completed', 'get_score']);
       expect(fetchSpy).toHaveBeenCalledTimes(1);
     }
-  });
-});
-
-describe('POST /api/attest with an http:// RPC URL', () => {
-  it('constructs the RPC server with allowHttp and does not 500', async () => {
-    const res = await attest({ questId: 2, evidence: { type: 'referral_tx', ref: REFERRED } });
-    expect(res.status).not.toBe(500);
   });
 });

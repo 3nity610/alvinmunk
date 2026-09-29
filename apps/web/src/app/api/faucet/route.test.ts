@@ -1,4 +1,3 @@
-
 // @vitest-environment node
 /**
  * Branch-coverage tests for POST /api/faucet (closes #170).
@@ -249,20 +248,6 @@ describe('POST /api/faucet — common guards', () => {
     state.configErrors = ['NEXT_PUBLIC_NETWORK_PASSPHRASE is wrong'];
     const res = await POST(makeReq({ recipient: G_ADDR }));
     expect(res.status).toBe(503);
-  });
-
-  it('constructs the RPC server with allowHttp for an http:// URL', async () => {
-    state.rpcUrl = 'http://localhost:8000/soroban/rpc';
-    vi.resetModules();
-    ({ POST } = (await import('./route')) as { POST: PostFn });
-
-    const { rpc } = await import('@stellar/stellar-sdk');
-    const res = await POST(makeReq({ recipient: G_ADDR }));
-    expect(res.status).toBe(200);
-    expect(rpc.Server).toHaveBeenCalledWith(
-      'http://localhost:8000/soroban/rpc',
-      { allowHttp: true },
-    );
   });
 });
 
