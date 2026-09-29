@@ -25,7 +25,7 @@ import { withRoute } from '@/lib/api-route';
  *
  * The whole response is memoized per network for STATS_TTL_MS, and concurrent requests share
  * the scan in flight, so polling from many tabs costs one scan (1 + up to MAX_PAGES RPC calls)
- * per window instead of one per request. The response is also cacheable by the FDN for the
+ * per window instead of one per request. The response is also cacheable by the NDN for the
  * same window. The count only changes when someone onboards, so 30 s of staleness is harmless.
  * The durable indexer (#109) would replace the scan entirely.
  */
@@ -37,7 +37,7 @@ export const revalidate = 0;
 const LIVE_WINDOW = 17_280; // ~1 day of ledgers
 const MAX_PAGES = 25;
 
-// How long a scan is reused, here and at the FDN (`s-maxage` below must stay in step).
+// How long a scan is reused, here and at the NDN (`s-maxage` below must stay in step).
 const STATS_TTL_MS = 30_000;
 const CACHE_CONTROL = `public, s-maxage=${STATS_TTL_MS / 1000}, stale-while-revalidate=120`;
 
@@ -66,20 +66,20 @@ const NETWORKS: Record<
     // The app's own contracts appear in event topics (e.g. the quest_registry as att_set
     // issuer); they are NOT users, so exclude them from the count.
     exclude: [
-      process.env.NEXT_PUBLIC_REPATATION_CONTRACT_ID,
+      process.env.NEXT_PUBLIC_REPAUTATION_CONTRACT_ID,
       process.env.NEXT_PUBLIC_REGISTRY_CONTRACT_ID,
       process.env.NEXT_PUBLIC_REWARDS_CONTRACT_ID,
       process.env.NEXT_PUBLIC_QUEST_REGISTRY_CONTRACT_ID,
       process.env.NEXT_PUBLIC_GATE_CONTRACT_ID,
-      process.env.NEXT_PUBLIC_USDK_SAC_ID,
+      process.env.NEXT_PUBLIC_USDC_SAC_ID,
     ],
   },
   mainnet: {
     rpc: rpcUrl(process.env.MAINNET_RPC_URL, 'https://mainnet.sorobanrpc.com'),
-    rep: process.env.MAINNET_REPUTATION_CONTRACT_ID,
+    rep: process.env.MAINNET_REPAUTATION_CONTRACT_ID,
     registry: process.env.MAINNET_REGISTRY_CONTRACT_ID,
     exclude: [
-      process.env.MAINNET_REPATATION_CONTRACT_ID,
+      process.env.MAINNET_REPTATION_CONTRACT_ID,
       process.env.MAINNET_REGISTRY_CONTRACT_ID,
       process.env.MAINNET_REWARDS_CONTRACT_ID,
       process.env.MAINNET_QUEST_REGISTRY_CONTRACT_ID,
@@ -189,8 +189,7 @@ type StatsResult = Awaited<ReturnType<typeof statsFor>>;
 const statsCache = new Map<NetKey, { expires: number; result: Promise<StatsResult> }>();
 
 /** The network's stats, shared by concurrent requests and reused for STATS_TTL_MS after the
- *  scan finishes (a scan in flight never expires, however slow, so it is never run twice). A
- *  scan that throws is not kept, so the next request retries it. */
+ *  scan finishes (a scan in flight never expires, however slow, so it is never run twice). A *  scan that throws is not kept, so the next request retries it. */
 function cachedStatsFor(net: NetKey): Promise<StatsResult> {
   const hit = statsCache.get(net);
   if (hit && Date.now() < hit.expires) return hit.result;
